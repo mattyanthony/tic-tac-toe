@@ -1,14 +1,14 @@
-#!/usr/bin/env python
-# coding: utf-8
+#Impossible to beat TicTacToe game
+#Author: Matthew Anthony
 
-# In[66]:
-
-
-#Matthew Anthony (anthonym2021)
-#Project 1 - TicTacToe Game
-#CAP 4630 - Dr. Marques - Summer 2023 
+'''This is a classic game of tictac toe where the user (player X) will play against the computer (player O)
+To play, you can simply download this .py file and open up your command prompt on windows. Assuming you have python
+downloaded from the Microsoft store, simply type "cd Downloads" followed by "python TicTacToe.py".
+This game uses the minimax algorithm which essentially renders the AI player as impossible to beat.
+Do you think you can do it?'''
 
 import random
+import math
 
 print("Welcome to Tic Tac Toe!")
 print("You will be playing as player X against the computer, player O.")
@@ -38,7 +38,14 @@ def draw_board(board):
 
 def is_winner(board, player):
     #All possible win combos done using and/or statements and board indexes
-    if (board[0] == player and board[1] == player and board[2] == player) or         (board[3] == player and board[4] == player and board[5] == player) or         (board[6] == player and board[7] == player and board[8] == player) or         (board[0] == player and board[3] == player and board[6] == player) or         (board[1] == player and board[4] == player and board[7] == player) or         (board[2] == player and board[5] == player and board[8] == player) or         (board[0] == player and board[4] == player and board[8] == player) or         (board[2] == player and board[4] == player and board[6] == player):
+    if (board[0] == player and board[1] == player and board[2] == player) or \
+        (board[3] == player and board[4] == player and board[5] == player) or \
+        (board[6] == player and board[7] == player and board[8] == player) or \
+        (board[0] == player and board[3] == player and board[6] == player) or \
+        (board[1] == player and board[4] == player and board[7] == player) or \
+        (board[2] == player and board[5] == player and board[8] == player) or \
+        (board[0] == player and board[4] == player and board[8] == player) or \
+        (board[2] == player and board[4] == player and board[6] == player):
         return True
     else:
         return False
@@ -55,10 +62,6 @@ def get_empty_cells(board):
     #enumerate and list comprehension research helped greatly here
     return [i for i, cell in enumerate(board) if cell == ' '] #use enumerate to get a list of empty indexes
 
-#def computer_move(board, computer_player):
-    #computer does a random move, incredibly easy to beat, need to add minimax here
-    #possible_moves = [i for i in range(9) if board[i] == ' ']
-    #return random.choice(possible_moves)
     
 def computer_move(board, computer_player):
     if computer_player == PLAYER_O: #AI plays as O
@@ -66,7 +69,7 @@ def computer_move(board, computer_player):
         best_move = None
         for cell in get_empty_cells(board): #loop goes over each index, using previous empty_cell function to return a list
             board[cell] = computer_player #temp O in all cells to use for calculations 
-            score = minimax(board, 0, False) #uses minimax to calculate score based on current board
+            score = minimax(board, 0, False, -math.inf, math.inf) #uses minimax to calculate score based on current board
             board[cell] = ' ' #take the O off from 2 lines prior 
             if score > best_score: #if the calculated score is better than the previous best score, update it new best score
                 best_score = score
@@ -74,7 +77,7 @@ def computer_move(board, computer_player):
         return best_move #returns best score after calculating every possiblity in minimaxWher
 
 
-def minimax(board, recur, maximizing_player):
+def minimax(board, recur, maximizing_player, alpha, beta): #state of the board currently, recursion level, player who needs the help
     if is_winner(board, PLAYER_O): #AI winner returns 1
         return 1
     elif is_winner(board, PLAYER_X): #-1 is if the human wins (unlikely)
@@ -86,17 +89,23 @@ def minimax(board, recur, maximizing_player):
         max_eval = float('-inf') #negative infinity to represent highest minimax score
         for cell in get_empty_cells(board): #similar to computer_move, iterates over each empty cell
             board[cell] = PLAYER_O #temp 0 is stored for simulation purposes
-            eval = minimax(board, recur + 1, False) #recursively calls minimax for the next move
+            eval = minimax(board, recur + 1, False, alpha, beta) #recursively calls minimax for the next move
             board[cell] = ' ' #remove temp 0 
             max_eval = max(max_eval, eval) #update new highest score
+            alpha = max(alpha, eval)
+            if beta <= alpha:
+                break
         return max_eval #return highest score
     else:
         min_eval = float('inf')
         for cell in get_empty_cells(board):
             board[cell] = PLAYER_X
-            eval = minimax(board, recur + 1, True)
+            eval = minimax(board, recur + 1, True, alpha, beta)
             board[cell] = ' '
             min_eval = min(min_eval, eval) #opposite of above statement, they want the highest for AI and lowest for human
+            beta = min(beta, eval)
+            if beta <= alpha:
+                break
         return min_eval
 
 
@@ -144,16 +153,3 @@ play_game()
 
 print("---------------------------------------")
 print("Thanks for playing!")
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
